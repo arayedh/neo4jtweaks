@@ -1,0 +1,54 @@
+import time
+import csv
+import datetime as datetime
+from neo4j.v1 import GraphDatabase, basic_auth,Node, Relationship
+
+#print('ho')
+def main():
+
+    f = "C:\Users\mydirectory\Desktop\file.csv" 
+    graph = Graph("link server")      #lien server                     
+    with open(f, 'r+') as in_file:
+
+        reader = csv.reader(in_file, delimiter=',')
+        next(reader, None)        
+        batch = graph.cypher.begin()                           
+
+        try:
+            i = 0;
+            j = 0;
+            for row in reader:    
+                if row:
+                    mp_number= strip(row[0])
+                    adapcicode= strip(row[1])
+                    program= strip(row[2])
+                    ata = strip(row[3])
+					query ="
+                        create(test1:test1 {test1: {a}})
+						create(test2:test2 {test2: {b}})
+						create(test3:test3 {test3: {c}})
+                        create(test4:test4 {test4: {d}})
+					"
+					batch.append(query, {"a":test1, "b": test2, "c": test3, "d":test4})
+                    i += 1
+                    j += 1
+                batch.process()
+						
+						
+                if (i == 1000): #submits a batch every 1000 lines read
+                    batch.commit()
+                    print j, "lines processed"
+                    i = 0                
+                    batch = graph.cypher.begin()
+            else: batch.commit() #submits remainder of lines read                       
+            print j, "lines processed"     
+
+        except Exception as e:
+            print e, row, reader.line_num
+def strip(string): return''.join([c if 0 < ord(c) < 128 else ' ' for c in string]) #removes non utf-8 chars from string within cell	
+if __name__ == '__main__':
+    start = time.time()
+    main()
+    end = time.time() - start
+    print "Time to complete:", end
+	
